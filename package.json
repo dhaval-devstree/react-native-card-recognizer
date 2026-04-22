@@ -1,0 +1,40 @@
+{
+  "name": "react-native-card-recognizer",
+  "version": "1.0.0",
+  "description": "Payment card scanning for React Native (Android Lens24 + iOS Vision OCR).",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhaval-devstree/react-native-card-recognizer"
+  },
+  "react-native": "src/index.js",
+  "files": [
+    "src",
+    "android",
+    "ios",
+    "*.podspec",
+    "react-native.config.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "react-native",
+    "credit-card",
+    "card",
+    "scanner",
+    "ocr"
+  ],
+  "author": "Dhaval",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dhaval-devstree/react-native-card-recognizer/issues"
+  },
+  "homepage": "https://github.com/dhaval-devstree/react-native-card-recognizer",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">=0.60.0"
+  },
+  "dependencies": {
+    "react-native-permissions": "^5.5.1"
+  }
+}
