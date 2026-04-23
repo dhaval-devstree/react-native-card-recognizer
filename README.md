@@ -81,6 +81,8 @@ const card = await scanPaymentCard({
 
 ```js
 const card = await scanPaymentCard({
+  // Shorthand (cross-platform):
+  cardFrameColor: '#0A84FF',
   scannerText: {
     android: {
       hint: 'Align your card inside the frame',
@@ -108,6 +110,7 @@ Pass an optional object to customize the permission dialog copy and/or the nativ
 | Option | Default | Description |
 |---|---|---|
 | permission | { title: Camera Permission; description: This app would like to access your camera to scan a payment card. } | Text used for the alert shown when camera permission is denied.
+| cardFrameColor | (platform default) | Shorthand for `scannerText.cardFrameColor`. |
 
 ### Scanner Text
 
@@ -115,18 +118,22 @@ Pass an optional object to customize the permission dialog copy and/or the nativ
 | Key | Default | Description |
 |---|---|---|
 | hint | Align your card inside the frame | Hint text shown on the scanner screen. |
+| cardFrameColor | (platform default) | Cross-platform shortcut for frame/accent color. |
 
 #### Android
 
 | Key | Default | Description |
 |---|---|---|
 | toolbarTitle | Scan card | Android Header title. |
+| manualInputButtonText | (hidden) | Shows the “Add manually” button. |
+| cardFrameColor | (green) | Android scanner accent color (card frame + “Add manually” button text). Hex like `#RRGGBB` / `#AARRGGBB`, or `@color/...`. |
 
 #### iOS
 
 | Key | Default | Description |
 |---|---|---|
 | hint | Align your card inside the frame | Hint text shown on the scanner screen. |
+| cardFrameColor | (white) | iOS card frame color (hex like `#RRGGBB` / `#AARRGGBB`). |
 | statusLookingForCardNumber | Looking for card number… | Status while searching for card number. |
 | statusReadingHoldSteady | Reading… hold steady (verifying number) | Status while reading/validating. |
 | statusNumberFoundLookingForExpiry | Number found. Looking for expiry… | Status after number found. |

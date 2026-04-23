@@ -73,7 +73,7 @@ const handleOpenDeviceSettings = () => {
   Linking.openSettings();
 };
 
-export const scanPaymentCard = async ({ permission, scannerText } = {}) => {
+export const scanPaymentCard = async ({ permission, scannerText, cardFrameColor } = {}) => {
   const status = await request(isAndroid ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
   if (status != 'granted') {
     handleCameraPermissionDenied(permission);
@@ -87,7 +87,13 @@ export const scanPaymentCard = async ({ permission, scannerText } = {}) => {
     };
     return scan();
   };
-  let response = await scanWithOptions(scannerText);
+  const options = (scannerText && typeof scannerText === 'object') ? scannerText : undefined;
+  const mergedOptions =
+    (options || cardFrameColor != null)
+      ? { ...(options || {}), ...(cardFrameColor != null ? { cardFrameColor } : {}) }
+      : undefined;
+
+  let response = await scanWithOptions(mergedOptions);
   const cardNumberRaw = String(response?.cardNumber || '');
   const cardNumberDigits = handleDigitsOnly(cardNumberRaw);
   if (!cardNumberDigits) {

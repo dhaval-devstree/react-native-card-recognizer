@@ -9,7 +9,8 @@ const App = () => {
   const _onPressScanCardButton = async () => {
     try {
       const card = await scanPaymentCard({
-        permission: { title: 'Camera Permission', description: 'ExampleApp would like to access your camera to scan a payment card.' }
+        permission: { title: 'Camera Permission', description: 'ExampleApp would like to access your camera to scan a payment card.' },
+        cardFrameColor: '#ffea00'
       });
       setCardDetails(card)
     } catch (error) {
@@ -36,7 +37,8 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF'
   },
   subContainer: {
     marginTop: 10,

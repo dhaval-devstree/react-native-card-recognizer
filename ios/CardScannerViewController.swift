@@ -10,25 +10,34 @@ struct CardScannerUIStrings {
   var cancel: String = "Cancel"
   var done: String = "Done"
   var torch: String = "Torch"
+  var cardFrameColorHex: String? = nil
 
   static func from(options: NSDictionary?) -> CardScannerUIStrings {
     guard let options else { return CardScannerUIStrings() }
+    let rootDict = options
     let dict = (options["ios"] as? NSDictionary) ?? options
 
-    func string(_ key: String) -> String? {
-      let raw = dict[key] as? String
+    func string(_ source: NSDictionary, _ key: String) -> String? {
+      let raw = source[key] as? String
       let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
       return trimmed.isEmpty ? nil : trimmed
     }
 
     var strings = CardScannerUIStrings()
-    strings.hint = string("hint") ?? strings.hint
-    strings.statusLookingForCardNumber = string("statusLookingForCardNumber") ?? strings.statusLookingForCardNumber
-    strings.statusReadingHoldSteady = string("statusReadingHoldSteady") ?? strings.statusReadingHoldSteady
-    strings.statusNumberFoundLookingForExpiry = string("statusNumberFoundLookingForExpiry") ?? strings.statusNumberFoundLookingForExpiry
-    strings.cancel = string("cancel") ?? strings.cancel
-    strings.done = string("done") ?? strings.done
-    strings.torch = string("torch") ?? strings.torch
+    strings.hint = string(dict, "hint") ?? strings.hint
+    strings.statusLookingForCardNumber = string(dict, "statusLookingForCardNumber") ?? strings.statusLookingForCardNumber
+    strings.statusReadingHoldSteady = string(dict, "statusReadingHoldSteady") ?? strings.statusReadingHoldSteady
+    strings.statusNumberFoundLookingForExpiry = string(dict, "statusNumberFoundLookingForExpiry") ?? strings.statusNumberFoundLookingForExpiry
+    strings.cancel = string(dict, "cancel") ?? strings.cancel
+    strings.done = string(dict, "done") ?? strings.done
+    strings.torch = string(dict, "torch") ?? strings.torch
+    // Prefer cardFrameColor; keep mainColor as a backward-compatible alias.
+    strings.cardFrameColorHex =
+      string(dict, "cardFrameColor")
+      ?? string(rootDict, "cardFrameColor")
+      ?? string(dict, "mainColor")
+      ?? string(rootDict, "mainColor")
+      ?? strings.cardFrameColorHex
     return strings
   }
 }
@@ -73,6 +82,7 @@ final class CardScannerViewController: UIViewController, AVCaptureVideoDataOutpu
   private let cancelButton = UIButton(type: .system)
   private let doneButton = UIButton(type: .system)
   private let torchButton = UIButton(type: .system)
+  private var mainUIColor: UIColor?
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -101,6 +111,8 @@ final class CardScannerViewController: UIViewController, AVCaptureVideoDataOutpu
   }
 
   private func setupUI() {
+    mainUIColor = UIColor.fromHexString(uiStrings.cardFrameColorHex)
+
     hintLabel.text = uiStrings.hint
     hintLabel.textColor = .white
     hintLabel.font = .systemFont(ofSize: 15, weight: .semibold)
@@ -113,7 +125,8 @@ final class CardScannerViewController: UIViewController, AVCaptureVideoDataOutpu
     statusLabel.textAlignment = .center
     statusLabel.numberOfLines = 2
 
-    overlayView.layer.borderColor = UIColor.white.withAlphaComponent(0.8).cgColor
+    let frameColor = (mainUIColor ?? UIColor.white).withAlphaComponent(0.85)
+    overlayView.layer.borderColor = frameColor.cgColor
     overlayView.layer.borderWidth = 2
     overlayView.layer.cornerRadius = 12
     overlayView.backgroundColor = .clear
@@ -502,5 +515,36 @@ final class CardScannerViewController: UIViewController, AVCaptureVideoDataOutpu
         self?.onError?(error)
       }
     }
+  }
+}
+
+private extension UIColor {
+  static func fromHexString(_ hex: String?) -> UIColor? {
+    guard var raw = hex?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else { return nil }
+    if raw.hasPrefix("#") { raw.removeFirst() }
+    guard raw.count == 6 || raw.count == 8 else { return nil }
+
+    var value: UInt64 = 0
+    guard Scanner(string: raw).scanHexInt64(&value) else { return nil }
+
+    let a, r, g, b: UInt64
+    if raw.count == 8 {
+      a = (value >> 24) & 0xFF
+      r = (value >> 16) & 0xFF
+      g = (value >> 8) & 0xFF
+      b = value & 0xFF
+    } else {
+      a = 0xFF
+      r = (value >> 16) & 0xFF
+      g = (value >> 8) & 0xFF
+      b = value & 0xFF
+    }
+
+    return UIColor(
+      red: CGFloat(r) / 255.0,
+      green: CGFloat(g) / 255.0,
+      blue: CGFloat(b) / 255.0,
+      alpha: CGFloat(a) / 255.0
+    )
   }
 }
